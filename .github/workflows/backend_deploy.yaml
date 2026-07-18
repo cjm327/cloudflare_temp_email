@@ -82,5 +82,8 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           # ✅ 将 secret 映射到环境变量中
           WRANGLER_TOML_CONTENT: ${{ secrets.BACKEND_TOML }}
-            # ✅ 新增这一行，告诉脚本需要构建前端页面
+          # ✅ 新增这一行，告诉脚本需要构建前端页面
           use_worker_assets: true
+          # 如果以后需要 Telegram 页面构建，可以在这里把 false 改为 true
+          use_worker_assets_with_telegram: false
+          use_mail_wasm_parser: false

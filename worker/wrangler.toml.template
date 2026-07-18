@@ -1,148 +1,211 @@
 name = "cloudflare_temp_email"
 main = "src/worker.ts"
-compatibility_date = "2025-04-01"
+compatibility_date = "2026-07-19"
 compatibility_flags = [ "nodejs_compat" ]
 keep_vars = true
-# if you want use custom_domain, you need to add routes
-# routes = [
-# 	{ pattern = "temp-email-api.xxxxx.xyz", custom_domain = true },
-# ]
 
-# if you want deploy worker with frontend assets, you need to add assets
-# [assets]
-# directory = "../frontend/dist/"
-# binding = "ASSETS"
-# run_worker_first = true
+# 如果你想使用自定义域名，需要在这里添加路由配置
+# 修改建议：取消注释，并将 pattern 替换为你自己的域名
+routes = [
+ 	{ pattern = "web.email.021008.uk", custom_domain = true },
+]
 
-# enable cron if you want set auto clean up
+# 如果你想将前端页面打包部署到 Worker，需要配置 assets
+# 修改建议：取消注释，directory 指向前端构建产物（如 dist 目录）的路径
+[assets]
+directory = "../frontend/dist/"
+binding = "ASSETS"
+run_worker_first = true
+
+# 如果你想设置自动清理任务，可以启用 cron 触发器
+# 修改建议：取消注释，crons 使用标准的 Cron 表达式，例如 "0 0 * * *" 表示每天午夜执行
 # [triggers]
 # crons = [ "0 0 * * *" ]
 
+# 发送邮件相关的配置
 # send_email = [
 #    { name = "SEND_MAIL" },
 # ]
 # SEND_MAIL_DOMAINS = ["example.com", "mail.example.com"]
 
 [vars]
-# DEFAULT_LANG = "zh"
-# TITLE = "Custom Title" # custom title
-# ANNOUNCEMENT = "Custom Announcement"
-# always show ANNOUNCEMENT even no changes
-# ALWAYS_SHOW_ANNOUNCEMENT = true
-PREFIX = "tmp"
-# address check REGEX, if not set, will not check
-# ADDRESS_CHECK_REGEX = "^(?!.*admin).*"
-# address name replace REGEX, if not set, the default is [^a-z0-9]
-# ADDRESS_REGEX = "[^a-z0-9]"
-# (min, max) length of the adderss, if not set, the default is (1, 30)
-# MIN_ADDRESS_LEN = 1
-# MAX_ADDRESS_LEN = 30
-# Disable custom email address name, if set true, users cannot input custom email name, will auto generate
+DEFAULT_LANG = "zh" # 默认语言，例如 "zh" 代表中文
+# TITLE = "Custom Title" # 自定义网站标题
+# ANNOUNCEMENT = "Custom Announcement" # 自定义公告内容
+# ALWAYS_SHOW_ANNOUNCEMENT = true # 即使没有变更也总是显示公告
+
+PREFIX = "" # 邮箱地址前缀，例如 tmp-xxxx
+
+# 地址检查正则表达式，如果设置，创建地址时会进行校验
+# 修改建议：例如，禁止创建包含 "admin" 的地址
+ADDRESS_CHECK_REGEX = "^(?!.*admin).*"
+
+# 地址名称替换正则表达式，如果未设置，默认是 [^a-z0-9]，即替换掉非小写字母和数字的字符
+# 修改建议：例如，只允许小写字母、数字和点号
+ADDRESS_REGEX = "[^a-z0-9.]"
+
+# 地址长度限制 (最小值, 最大值)，默认是 (1, 30)
+MIN_ADDRESS_LEN = 1
+MAX_ADDRESS_LEN = 30
+
+# 禁用自定义邮箱地址名称，如果设置为 true，用户将无法输入自定义邮箱名，系统会自动生成
 # DISABLE_CUSTOM_ADDRESS_NAME = true
-# IF YOU WANT TO MAKE YOUR SITE PRIVATE, UNCOMMENT THE FOLLOWING LINES
-# PASSWORDS = ["123", "456"]
-# For admin panel
-# ADMIN_PASSWORDS = ["123", "456"]
-# warning: no password or user check for admin portal
+
+# 如果你想让你的站点变为私有，请取消下面两行的注释并设置密码
+# 修改建议：取消注释，并设置你自己的密码列表
+ PASSWORDS = ["tuzwam-8vopgo-Myvves", "mahne1bymkofnifqEp"]
+
+# 管理员面板密码
+# 修改建议：取消注释，并设置管理员密码
+ADMIN_PASSWORDS = ["zumcoB-digjan-5papva"]
+
+# 警告：管理员门户没有密码或用户检查
 # DISABLE_ADMIN_PASSWORD_CHECK = false
-# ADMIN CONTACT, CAN BE ANY STRING
-# ADMIN_CONTACT = "xx@xx.xxx"
-# Create new address with default domain first, if set true, will use first domain from DEFAULT_DOMAINS when no domain specified
-# CREATE_ADDRESS_DEFAULT_DOMAIN_FIRST = false
-DEFAULT_DOMAINS = ["xxx.xxx1" , "xxx.xxx2"] # domain name for no role users
-DOMAINS = ["xxx.xxx1" , "xxx.xxx2"] # all domain names
-# Allow /api/new_address and /admin/new_address to accept subdomains that end with an allowed base domain
-# e.g. if DOMAINS contains "abc.com", API can accept "team.abc.com" and "dev.team.abc.com"
-# ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH = true
-# Allow optional random subdomain generation for the listed base domains
-# e.g. name@abc.com => name@r4nd0m.abc.com
+
+# 管理员联系方式，可以是任意字符串
+# ADMIN_CONTACT = "admin@abc.com"
+
+# 创建新地址时优先使用默认域名，如果设置为 true，当未指定域名时将使用 DEFAULT_DOMAINS 中的第一个域名
+CREATE_ADDRESS_DEFAULT_DOMAIN_FIRST = true
+
+# 默认域名，用于没有特定角色的用户
+# 修改建议：替换为你自己的域名
+DEFAULT_DOMAINS = ["email.021008.uk"]
+
+# 所有可用的域名
+# 修改建议：替换为你自己的所有域名
+DOMAINS = ["email.021008.uk"]
+
+# 允许 /api/new_address 和 /admin/new_address 接受以允许的基域结尾的子域名
+# 例如，如果 DOMAINS 包含 "abc.com"，API 可以接受 "team.abc.com" 和 "dev.team.abc.com"
+ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH = true
+
+# 允许为列出的基域生成可选的随机子域名
+# 例如，name@abc.com => name@r4nd0m.abc.com
 # RANDOM_SUBDOMAIN_DOMAINS = ["abc.com"]
 # RANDOM_SUBDOMAIN_LENGTH = 8
-# For chinese domain name, you can use DOMAIN_LABELS to show chinese domain name
-# DOMAIN_LABELS = ["中文.xxx", "xxx.xxx2"]
-# USER_DEFAULT_ROLE = "vip" # default role for new users(only when enable mail verification)
-# ADMIN_USER_ROLE = "admin" # the role which can access admin panel
-# User roles configuration, if domains is empty will use default_domains, if prefix is null will use default prefix, if prefix is empty string will not use prefix
+
+# 对于中文域名，你可以使用 DOMAIN_LABELS 来显示中文域名
+# DOMAIN_LABELS = ["中文.域名", "yourdomain2.com"]
+
+# 新用户的默认角色（仅在启用邮件验证时有效）
+# USER_DEFAULT_ROLE = "vip"
+
+# 可以访问管理员面板的角色
+ADMIN_USER_ROLE = "admin"
+
+# 用户角色配置，如果 domains 为空将使用 default_domains，如果 prefix 为 null 将使用默认前缀，如果 prefix 为空字符串将不使用前缀
 # USER_ROLES = [
-#    { domains = ["xxx.xxx1" , "xxx.xxx2"], role = "vip", prefix = "vip" },
-#    { domains = ["xxx.xxx1" , "xxx.xxx2"], role = "admin", prefix = "" },
+#    { domains = ["021008.uk"], role = "vip", prefix = "vip" },
+#    { domains = ["021008.uk"], role = "admin", prefix = "" },
 # ]
-JWT_SECRET = "xxx"
-BLACK_LIST = ""
-# Allow users to create email addresses
+
+# JWT 密钥，用于生成和验证 JSON Web Tokens
+# 修改建议：务必替换为一个强随机字符串
+JWT_SECRET = "x9k2m5p8r1t4w7z0c3f6j9l2n5q8s1v4y7b0d3g6i9k2m5p8r1t4w7z0c3f6j9l"
+
+BLACK_LIST = "" # 黑名单，可以填入不想接收邮件的发件人地址，多个用逗号分隔
+
+# 允许用户创建邮箱地址
 ENABLE_USER_CREATE_EMAIL = true
-# Disable anonymous user create email, if set true, users can only create email addresses after logging in
+
+# 禁用匿名用户创建邮箱，如果设置为 true，用户只能在登录后创建邮箱地址
 # DISABLE_ANONYMOUS_USER_CREATE_EMAIL = true
-# Allow users to delete messages
+
+# 允许用户删除邮件
 ENABLE_USER_DELETE_EMAIL = true
-# Allow automatic replies to emails
+
+# 允许自动回复邮件
 ENABLE_AUTO_REPLY = false
-# Allow webhook
+
+# 允许 Webhook
 # ENABLE_WEBHOOK = true
-# Enable address password feature, if set true, will generate password for new address and support password login and change
-# ENABLE_ADDRESS_PASSWORD = false
-# Show AI Agent mailbox connection info in the address credential modal
+
+# 启用地址密码功能，如果设置为 true，将为新地址生成密码并支持密码登录和更改
+ENABLE_ADDRESS_PASSWORD = false
+
+# 在地址凭证模态框中显示 AI Agent 邮箱连接信息
 # ENABLE_AGENT_EMAIL_INFO = true
-# Show SMTP/IMAP client connection info in the address credential modal
+
+# 在地址凭证模态框中显示 SMTP/IMAP 客户端连接信息
+# 修改建议：取消注释并填写你的 SMTP/IMAP 服务器信息
 # SMTP_IMAP_PROXY_CONFIG = """
 # {
-#   "smtp": { "host": "smtp.example.com", "port": 8025, "starttls": true },
-#   "imap": { "host": "imap.example.com", "port": 11143, "starttls": true }
+#   "smtp": { "host": "smtp.your-smtp.com", "port": 587, "starttls": true },
+#   "imap": { "host": "imap.your-imap.com", "port": 993, "starttls": true }
 # }
 # """
-# Footer text
-# COPYRIGHT = "Dream Hunter"
-# DISABLE_SHOW_GITHUB = true
-# DISABLE_SHOW_GITHUB_FOR_USER = true
-# Status monitoring page URL
-# STATUS_URL = "https://status.example.com"
-# default send balance, auto initialized when users open settings or send mail; if not set, it will be 0
+
+# 页脚文本
+COPYRIGHT = "ABC页脚文本"
+
+# 不显示 GitHub 链接
+DISABLE_SHOW_GITHUB = false
+DISABLE_SHOW_GITHUB_FOR_USER = false
+
+# 状态监控页面 URL
+# STATUS_URL = "https://status.yourdomain.com"
+
+# 默认发送余额，当用户打开设置或发送邮件时自动初始化；如果未设置，将为 0
 # DEFAULT_SEND_BALANCE = 1
-# the role which can send emails without limit, multiple roles can be separated by ,
+
+# 可以无限制发送邮件的角色，多个角色可以用逗号分隔
 # NO_LIMIT_SEND_ROLE = "vip"
-# Turnstile verification
-# CF_TURNSTILE_SITE_KEY = ""
-# CF_TURNSTILE_SECRET_KEY = ""
-# Enable global Turnstile check for all login forms (requires Turnstile keys above)
+
+# Turnstile 验证码配置
+# CF_TURNSTILE_SITE_KEY = "your-turnstile-site-key"
+# CF_TURNSTILE_SECRET_KEY = "your-turnstile-secret-key"
+
+# 为所有登录表单启用全局 Turnstile 检查（需要上面的 Turnstile 密钥）
 # ENABLE_GLOBAL_TURNSTILE_CHECK = true
-# telegram bot
-# TG_MAX_ADDRESS = 5
-# telegram bot info, predefined bot info can reduce latency of the webhook
-# TG_BOT_INFO = "{}"
-# allow user to switch language via /lang command
-# TG_ALLOW_USER_LANG = true
-# enable sending email attachments via Telegram push (50MB per file limit)
-# ENABLE_TG_PUSH_ATTACHMENT = true
-# global forward address list, if set, all emails will be forwarded to these addresses
-# FORWARD_ADDRESS_LIST = ["xxx@xxx.com"]
-# subdomain forward address list, if set, subdomain emails will be forwarded to these addresses
+
+# Telegram 机器人配置
+# TG_MAX_ADDRESS = 5 # 每个用户最多绑定的地址数量
+# TG_BOT_INFO = "{}" # 预定义的机器人信息，可以减少 Webhook 延迟
+# TG_ALLOW_USER_LANG = true # 允许用户通过 /lang 命令切换语言
+# ENABLE_TG_PUSH_ATTACHMENT = true # 启用通过 Telegram 推送邮件附件（每个文件限制 50MB）
+
+# 全局转发地址列表，如果设置，所有邮件都将转发到这些地址
+# FORWARD_ADDRESS_LIST = ["forward1@yourdomain.com", "forward2@yourdomain.com"]
+
+# 子域名转发地址列表，如果设置，子域名邮件将转发到这些地址
 # SUBDOMAIN_FORWARD_ADDRESS_LIST = """
 # [
-#     {"domains":[""],"forward":"xxx1@xxx.com"},
-#     {"domains":["subdomain-1.domain.com","subdomain-2.domain.com"],"forward":"xxx2@xxx.com"}
+#     {"domains":["sub1.yourdomain.com"],"forward":"user1@forward.com"},
+#     {"domains":["sub2.yourdomain.com"],"forward":"user2@forward.com"}
 # ]
 # """
-# Frontend URL
-# FRONTEND_URL = "https://xxxx.xxx"
-# Enable check junk mail
+
+# 前端 URL
+FRONTEND_URL = "https://web.email.021008.uk"
+
+# 启用垃圾邮件检查
 # ENABLE_CHECK_JUNK_MAIL = false
-# junk mail check list, if status exists and status is not pass, will be marked as junk mail
-# JUNK_MAIL_CHECK_LIST = = ["spf", "dkim", "dmarc"]
-# junk mail force check pass list, if no status or status is not pass, will be marked as junk mail
+
+# 垃圾邮件检查列表，如果状态存在且未通过，将被标记为垃圾邮件
+# JUNK_MAIL_CHECK_LIST = ["spf", "dkim", "dmarc"]
+
+# 垃圾邮件强制检查通过列表，如果没有状态或未通过，将被标记为垃圾邮件
 # JUNK_MAIL_FORCE_PASS_LIST = ["spf", "dkim", "dmarc"]
-# remove attachment if size exceed 2MB, mail maybe mising some information due to parsing
-# REMOVE_EXCEED_SIZE_ATTACHMENT = true
-# remove all attachment, mail maybe mising some information due to parsing
-# REMOVE_ALL_ATTACHMENT = true
-# enable gzip compressed email storage in raw_blob column (run db_migration first)
+
+# 如果附件大小超过 2MB 则移除，由于解析原因，邮件可能会丢失一些信息
+REMOVE_EXCEED_SIZE_ATTACHMENT = true
+
+# 移除所有附件，由于解析原因，邮件可能会丢失一些信息
+REMOVE_ALL_ATTACHMENT = true
+
+# 在 raw_blob 列中启用 gzip 压缩邮件存储（需要先运行 db_migration）
 # ENABLE_MAIL_GZIP = true
-# AI email extraction, automatically extract verification codes, auth links, etc.
+
+# AI 邮件提取，自动提取验证码、认证链接等
 # ENABLE_AI_EMAIL_EXTRACT = true
-# AI model name, choose from https://developers.cloudflare.com/workers-ai/features/json-mode/#supported-models
-# Recommended JSON Mode model: "@cf/meta/llama-3.1-8b-instruct-fast"
-# Note: "@cf/meta/llama-3.1-8b-instruct" will be deprecated by Cloudflare on 2026-05-30
+
+# AI 模型名称，从 https://developers.cloudflare.com/workers-ai/features/json-mode/#supported-models 中选择
+# 推荐的 JSON Mode 模型: "@cf/meta/llama-3.1-8b-instruct-fast"
+# 注意: "@cf/meta/llama-3.1-8b-instruct" 将被 Cloudflare 在 2026-05-30 弃用
 # AI_EXTRACT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast"
-# Calling other woker to process email
+
+# 调用其他 Worker 来处理邮件
 # ENABLE_ANOTHER_WORKER = false
 # ANOTHER_WORKER_LIST = """
 # [
@@ -159,27 +222,29 @@ ENABLE_AUTO_REPLY = false
 
 [[d1_databases]]
 binding = "DB"
-database_name = "xxx"
-database_id = "xxx"
+# 数据库名称，在 Cloudflare D1 中创建
+database_name = "temp-email-db"
+# 数据库 ID，在 Cloudflare D1 中创建后获得
+database_id = "dd6d7fea-18a4-44c5-a680-af274e339a02"
 
-# Workers AI binding (required for AI email extraction)
+# Workers AI 绑定（AI 邮件提取所需）
 # [ai]
 # binding = "AI"
 
-# kv config for send email verification code
+# KV 命名空间配置，用于发送邮件验证码
 # [[kv_namespaces]]
 # binding = "KV"
-# id = "xxxx"
+# id = "your-kv-namespace-id"
 
-# ratelimit config for /api/new_address
+# /api/new_address 的速率限制配置
 # [[unsafe.bindings]]
 # name = "RATE_LIMITER"
 # type = "ratelimit"
 # namespace_id = "1001"
-# # 10 requests per minute
+# 每分钟 10 个请求
 # simple = { limit = 10, period = 60 }
 
-# binding another worker service (parse the code or link), e.g. auth-inbox
+# 绑定另一个 Worker 服务（解析代码或链接），例如 auth-inbox
 # [[services]]
 # binding = "AUTH_INBOX"
 # service = "auth-inbox"
